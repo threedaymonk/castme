@@ -1,3 +1,8 @@
+require 'bundler/setup'
+require 'cgi'
+require 'mp3info'
+require 'sinatra'
+
 get '/' do
   @shows = get_shows
   erb :rss
