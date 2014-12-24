@@ -2,6 +2,7 @@ require 'bundler/setup'
 require 'builder'
 require 'cgi'
 require 'mp3info'
+require 'mp4info'
 require 'naturally'
 require 'sinatra'
 require 'digest/sha1'
@@ -44,7 +45,7 @@ class Feed
 private
 
   def audio_files
-    Dir[File.join(@root, '*.mp3')].select { |f| File.file?(f) }
+    Dir[File.join(@root, '*.{mp3,m4a}')].select { |f| File.file?(f) }
   end
 
   def show(file)
@@ -52,10 +53,24 @@ private
       show.url = file
       show.date = File.mtime(file)
 
-      Mp3Info.open(file) do |mp3|
-        show.name = mp3.tag.title || File.basename(file, '.mp3')
-        show.description = [mp3.tag.artist, mp3.tag.comments].join("\r\n")
+      case file
+      when /\.mp3/
+        add_mp3_info(show, file)
+      else
+        add_mp4_info(show, file)
       end
     }
+  end
+
+  def add_mp3_info(show, file)
+    info = Mp3Info.open(file)
+    show.name = info.tag.title || File.basename(file, '.info')
+    show.description = [info.tag.artist, info.tag.comments].join("\r\n")
+  end
+
+  def add_mp4_info(show, file)
+    info = MP4Info.open(file)
+    show.name = info.NAM || File.basename(file, '.m4a')
+    show.description = [info.ART, info.CMT].join("\r\n")
   end
 end
