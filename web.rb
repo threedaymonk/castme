@@ -6,8 +6,10 @@ require 'naturally'
 require 'sinatra'
 
 get '/' do
-  @feed = Feed.new(File.expand_path('../public/shows', __FILE__))
-  builder :rss
+  Dir.chdir(File.expand_path('../public', __FILE__)) do
+    @feed = Feed.new('shows')
+    builder :rss
+  end
 end
 
 class Feed
@@ -35,7 +37,7 @@ private
 
   def show(file)
     Show.new.tap { |show|
-      show.url = "shows/#{CGI::escape(File.basename(file))}"
+      show.url = escape_parts(file)
       show.date = File.mtime(file)
 
       Mp3Info.open(file) do |mp3|
@@ -43,5 +45,9 @@ private
         show.description = [mp3.tag.artist, mp3.tag.comments].join("\r\n")
       end
     }
+  end
+
+  def escape_parts(str)
+    str.split('/').map { |s| CGI.escape(s) }.join('/')
   end
 end
