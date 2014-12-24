@@ -6,29 +6,42 @@ require 'naturally'
 require 'sinatra'
 
 get '/' do
-  @shows = get_shows
+  @feed = Feed.new(File.expand_path('../public/shows', __FILE__))
   builder :rss
 end
 
-Show = Struct.new(:url, :name, :date, :description)
+class Feed
+  Show = Struct.new(:url, :name, :date, :description)
 
-def show(file)
-  return nil unless File.file?(file)
+  def initialize(path)
+    @root = path
+  end
 
-  Show.new.tap { |show|
-    show.url = "shows/#{CGI::escape(File.basename(file))}"
-    show.date = File.mtime(file)
+  def name
+    File.basename(@root)
+  end
 
-    Mp3Info.open(file) do |mp3|
-      show.name = mp3.tag.title || File.basename(file, '.mp3')
-      show.description = [mp3.tag.title,mp3.tag.artist,mp3.tag.comments].join("\n\r")
-    end
-  }
-end
+  def shows
+    audio_files.
+      sort_by { |f| Naturally.normalize(f) }.reverse.
+      map { |f| show(f) }
+  end
 
-def get_shows
-  shows_dir = File.expand_path('../public/shows', __FILE__)
-  Dir[File.join(shows_dir, '*.mp3')].
-    sort_by { |f| Naturally.normalize(f) }.reverse.
-    map { |f| show(f) }.compact
+private
+
+  def audio_files
+    Dir[File.join(@root, '*.mp3')].select { |f| File.file?(f) }
+  end
+
+  def show(file)
+    Show.new.tap { |show|
+      show.url = "shows/#{CGI::escape(File.basename(file))}"
+      show.date = File.mtime(file)
+
+      Mp3Info.open(file) do |mp3|
+        show.name = mp3.tag.title || File.basename(file, '.mp3')
+        show.description = [mp3.tag.artist, mp3.tag.comments].join("\r\n")
+      end
+    }
+  end
 end
