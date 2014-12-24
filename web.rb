@@ -21,7 +21,7 @@ def show(file)
 
     Mp3Info.open(file) do |mp3|
       show.name = mp3.tag.title || File.basename(file, '.mp3')
-      show.description = [mp3.tag.title,mp3.tag.artist,mp3.tag1.comments].join("\n\r")
+      show.description = [mp3.tag.title,mp3.tag.artist,mp3.tag.comments].join("\n\r")
     end
   }
 end
