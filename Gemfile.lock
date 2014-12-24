@@ -1,6 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    naturally (1.3.1)
     rack (1.2.2)
     ruby-mp3info (0.8.5)
     sinatra (1.2.1)
@@ -12,5 +13,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  naturally
   ruby-mp3info
   sinatra

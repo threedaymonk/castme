@@ -1,4 +1,5 @@
 source "http://rubygems.org"
 
-gem 'sinatra'
+gem 'naturally'
 gem 'ruby-mp3info'
+gem 'sinatra'
