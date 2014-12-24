@@ -1,4 +1,5 @@
 require 'bundler/setup'
+require 'builder'
 require 'cgi'
 require 'mp3info'
 require 'naturally'
@@ -6,7 +7,7 @@ require 'sinatra'
 
 get '/' do
   @shows = get_shows
-  erb :rss
+  builder :rss
 end
 
 Show = Struct.new(:url, :name, :date, :description)
