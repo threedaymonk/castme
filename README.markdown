@@ -8,6 +8,7 @@ This little Sinatra app will take a bunch of mp3 files and create an RSS feed fo
 Usage
 -----
 
-1. Copy over the mp3 files you want to podcast into public/shows.
-2. Host the app using your webserver of choice.
-3. Add the url of your webserver in iTunes => Advanced => Subscribe to podcast.
+1. Create a directory for each feed you wish to host under public.
+2. Copy over the mp3 files you want to podcast into `public/<directory>`.
+3. Host the app using your webserver of choice (or just type `rackup`)
+4. Add the RSS url (`/<directory>.rss`) to your podcast listening program.
