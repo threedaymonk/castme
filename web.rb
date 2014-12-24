@@ -4,17 +4,29 @@ require 'cgi'
 require 'mp3info'
 require 'naturally'
 require 'sinatra'
+require 'digest/sha1'
 
 get '/' do
   Dir.chdir(File.expand_path('../public', __FILE__)) do
-    @feed = Feed.new('shows')
+    @feeds = Dir['*'].select { |f| File.directory?(f) }.map { |f| Feed.new(f) }
+    builder :index, content_type: :html
+  end
+end
+
+get '/:name.rss' do |name|
+  Dir.chdir(File.expand_path('../public', __FILE__)) do
+    @feed = Feed.new(name)
     builder :rss
   end
 end
 
-class Feed
-  Show = Struct.new(:url, :name, :date, :description)
+Show = Struct.new(:url, :name, :date, :description) do
+  def guid
+    Digest::SHA1.hexdigest(url)
+  end
+end
 
+class Feed
   def initialize(path)
     @root = path
   end
@@ -37,7 +49,7 @@ private
 
   def show(file)
     Show.new.tap { |show|
-      show.url = escape_parts(file)
+      show.url = file
       show.date = File.mtime(file)
 
       Mp3Info.open(file) do |mp3|
@@ -45,9 +57,5 @@ private
         show.description = [mp3.tag.artist, mp3.tag.comments].join("\r\n")
       end
     }
-  end
-
-  def escape_parts(str)
-    str.split('/').map { |s| CGI.escape(s) }.join('/')
   end
 end

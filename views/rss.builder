@@ -10,8 +10,8 @@ xml.rss version: '2.0', 'xmlns:itunes' => 'http://www.itunes.com/dtds/podcast-1.
     @feed.shows.each do |show|
       xml.item do
         xml.title show.name
-        xml.enclosure url: "#{ request.url }#{ show.url }", type: 'audio/mpeg'
-        xml.guid "#{ request.url }#{ show.url }"
+        xml.enclosure url: "#{ request.base_url }/#{ show.url }", type: 'audio/mpeg'
+        xml.guid show.guid
         xml.pubDate show.date.rfc2822
         xml.description show.description
       end
